@@ -2,890 +2,68 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Dashboard Trimming</title>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Produksi Cutting</title>
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
-}
-
-body{
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background: #0f172a;
-  padding: 10px;
-  color: #fff;
-  font-size: 14px;
-  line-height: 1.4;
-  min-height: 100vh;
-}
-
-h1{
-  text-align: center;
-  margin-bottom: 15px;
-  font-size: 20px;
-  font-weight: 600;
-}
-
-h2{
-  font-size: 16px;
-  margin: 15px 0 10px 0;
-  color: #fbbf24;
-}
-
-.card{
-  background: #1e293b;
-  border-radius: 12px;
-  padding: 15px;
-  margin-bottom: 15px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-}
-
-/* ===== NAVIGATION ===== */
-.nav-tabs{
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-  background: #334155;
-  padding: 5px;
-  border-radius: 10px;
-}
-
-.nav-tab{
-  flex: 1;
-  padding: 12px;
-  text-align: center;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
-  transition: all 0.3s;
-  color: #94a3b8;
-  background: transparent;
-  border: none;
-  font-family: inherit;
-}
-
-.nav-tab.active{
-  background: #2563eb;
-  color: #fff;
-}
-
-.page{
-  display: none;
-}
-
-.page.active{
-  display: block;
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ===== TABLE STYLES ===== */
-.table-container{
-  overflow-x: auto;
-  overflow-y: auto;
-  max-height: 80vh;
-  -webkit-overflow-scrolling: touch;
-  border-radius: 8px;
-  background: #fff;
-}
-
-table{
-  border-collapse: separate;
-  border-spacing: 0;
-  width: max-content;
-  min-width: 100%;
-  background: #fff;
-  color: #000;
-  font-size: 13px;
-}
-
-th,td{
-  border: 1px solid #e5e7eb;
-  padding: 8px 4px;
-  text-align: center;
-  min-width: 50px;
-  height: 40px;
-}
-
-th{
-  background: #1e293b;
-  color: #fff;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  font-weight: 600;
-  font-size: 12px;
-}
-
-.rankCol{
-  position: sticky;
-  left: 0;
-  background: #f3f4f6;
-  z-index: 11;
-  min-width: 45px;
-  font-weight: bold;
-  font-size: 12px;
-  color: #000;
-}
-
-.nameCol{
-  position: sticky;
-  left: 45px;
-  background: #fff;
-  z-index: 11;
-  min-width: 140px;
-  font-weight: 600;
-  text-align: left;
-  padding-left: 10px;
-  font-size: 13px;
-  color: #000 !important;
-}
-
-/* CRITICAL FIX: Ensure name is visible in public mode */
-.nameCol-text{
-  color: #000 !important;
-  font-weight: 600;
-  padding-left: 8px;
-  display: block;
-  width: 100%;
-}
-
-th.rankCol, th.nameCol{
-  z-index: 12;
-  background: #1e293b;
-  color: #fff;
-}
-
-input{
-  width: 100%;
-  min-width: 45px;
-  padding: 6px 2px;
-  font-size: 14px;
-  text-align: center;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  -webkit-appearance: none;
-  appearance: none;
-  font-family: inherit;
-}
-
-input:focus{
-  outline: none;
-  border-color: #3b82f6;
-}
-
-.nameInput{
-  width: 100%;
-  min-width: 130px;
-  text-align: left;
-  padding-left: 8px;
-  color: #000;
-  background: #fff;
-}
-
-.low{background: #fecaca !important;}
-.mid{background: #fde047 !important;}
-.high{background: #86efac !important;}
-
-.status-P{background: #93c5fd !important; color: #1e40af; font-weight: bold;}
-.status-BE{background: #fca5a5 !important; color: #991b1b; font-weight: bold;}
-.status-U{background: #86efac !important; color: #166534; font-weight: bold;}
-
-/* ===== BUTTONS ===== */
-.btn{
-  padding: 12px 20px;
-  background: #2563eb;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 600;
-  min-height: 44px;
-  touch-action: manipulation;
-  text-decoration: none;
-  display: inline-block;
-  text-align: center;
-  margin: 5px;
-  transition: all 0.2s;
-  font-family: inherit;
-}
-
-.btn:hover{
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37,99,235,0.4);
-}
-
-.btn-success{
-  background: #10b981;
-}
-
-.btn-success:hover{
-  box-shadow: 0 4px 12px rgba(16,185,129,0.4);
-}
-
-.btn-warning{
-  background: #f59e0b;
-  color: #000;
-}
-
-.btn-danger{
-  background: #ef4444;
-}
-
-.btn-sm{
-  padding: 8px 15px;
-  font-size: 13px;
-}
-
-.btn-login{
-  background: #7c3aed;
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 50;
-  padding: 12px 20px;
-  border-radius: 50px;
-  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
-}
-
-.btn-logout{
-  background: #ef4444;
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 50;
-  padding: 12px 20px;
-  border-radius: 50px;
-  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
-}
-
-/* ===== LOGIN MODAL ===== */
-.login-modal-overlay{
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.8);
-  z-index: 100;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-}
-
-.login-modal-overlay.active{
-  display: flex;
-}
-
-.login-modal-content{
-  background: #1e293b;
-  border-radius: 12px;
-  padding: 25px;
-  width: 100%;
-  max-width: 350px;
-  text-align: center;
-}
-
-.login-modal-content h2{
-  margin-bottom: 20px;
-  color: #fbbf24;
-}
-
-.login-modal-content input{
-  width: 100%;
-  padding: 15px;
-  margin-bottom: 15px;
-  font-size: 16px;
-  border-radius: 8px;
-  border: 2px solid #475569;
-  background: #0f172a;
-  color: #fff;
-  text-align: center;
-}
-
-.login-modal-content input:focus{
-  border-color: #7c3aed;
-}
-
-/* ===== INFO & LEGEND ===== */
-.info-box{
-  background: #334155;
-  border: 1px solid #475569;
-  padding: 12px;
-  border-radius: 8px;
-  margin-bottom: 12px;
-  font-size: 12px;
-  color: #cbd5e1;
-  line-height: 1.5;
-}
-
-.info-box strong{
-  color: #60a5fa;
-}
-
-.legend{
-  background: #334155;
-  padding: 12px;
-  border-radius: 8px;
-  margin-bottom: 12px;
-  font-size: 11px;
-}
-
-.legend strong{
-  display: block;
-  margin-bottom: 8px;
-  color: #fbbf24;
-  font-size: 12px;
-}
-
-.legend span{
-  display: inline-block;
-  margin: 2px;
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-}
-
-/* ===== SHIFT ROW ===== */
-.shiftRow{
-  background: #475569 !important;
-  font-weight: bold;
-  color: #fff;
-  font-size: 14px;
-}
-
-.shiftRow td{
-  padding: 10px;
-  text-align: left;
-  padding-left: 15px;
-  border-top: 2px solid #334155;
-}
-
-.warning{
-  font-weight: bold;
-  color: #dc2626;
-  background: #fee2e2;
-  font-size: 12px;
-}
-
-/* ===== SIZE SUSAH PAGE ===== */
-.header-info{
-  background: #334155;
-  padding: 12px;
-  border-radius: 8px;
-  margin-bottom: 15px;
-  font-size: 13px;
-}
-
-.header-info label{
-  display: block;
-  margin-bottom: 10px;
-}
-
-.header-info select, .header-info input{
-  width: 100%;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #475569;
-  background: #1e293b;
-  color: #fff;
-  font-size: 14px;
-  margin-top: 5px;
-  font-family: inherit;
-}
-
-.model-tabs{
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
-.model-tab{
-  flex: 1;
-  padding: 15px;
-  background: #334155;
-  border: 2px solid transparent;
-  border-radius: 10px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.model-tab.active{
-  background: #2563eb;
-  border-color: #60a5fa;
-}
-
-.model-tab h3{
-  font-size: 18px;
-  margin-bottom: 5px;
-}
-
-.model-tab p{
-  font-size: 12px;
-  color: #cbd5e1;
-}
-
-.size-grid{
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
-  gap: 8px;
-  margin-bottom: 15px;
-}
-
-.size-item{
-  position: relative;
-  background: #334155;
-  border: 2px solid #475569;
-  border-radius: 8px;
-  padding: 10px 5px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  user-select: none;
-}
-
-.size-item:hover{
-  border-color: #60a5fa;
-}
-
-.size-item.selected{
-  background: #2563eb;
-  border-color: #60a5fa;
-  color: #fff;
-}
-
-.size-item .size-label{
-  font-size: 13px;
-  font-weight: bold;
-  display: block;
-  margin-bottom: 4px;
-}
-
-.size-item .size-check{
-  font-size: 16px;
-  display: none;
-}
-
-.size-item.selected .size-check{
-  display: block;
-}
-
-.operator-list{
-  max-height: 40vh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.operator-item{
-  background: #334155;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.operator-name{
-  font-weight: 600;
-  font-size: 14px;
-  flex: 1;
-  min-width: 120px;
-  color: #fff;
-}
-
-.operator-sizes{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  flex: 2;
-}
-
-.size-tag{
-  background: #ef4444;
-  color: #fff;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: bold;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.size-tag .remove{
-  cursor: pointer;
-  font-weight: bold;
-  opacity: 0.7;
-}
-
-.size-tag .remove:hover{
-  opacity: 1;
-}
-
-.btn-add-size{
-  padding: 6px 12px;
-  background: #10b981;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 12px;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.btn-add-size:disabled{
-  background: #64748b;
-  cursor: not-allowed;
-}
-
-/* ===== MODAL ===== */
-.modal-overlay{
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.8);
-  z-index: 100;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-}
-
-.modal-overlay.active{
-  display: flex;
-}
-
-.modal-content{
-  background: #1e293b;
-  border-radius: 12px;
-  padding: 20px;
-  width: 100%;
-  max-width: 500px;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-.modal-header{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #334155;
-}
-
-.modal-header h3{
-  font-size: 16px;
-}
-
-.close-modal{
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 24px;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-/* ===== SUMMARY ===== */
-.summary-card{
-  background: #065f46;
-  border-radius: 10px;
-  padding: 15px;
-  margin-top: 15px;
-}
-
-.summary-card h3{
-  color: #6ee7b7;
-  margin-bottom: 10px;
-  font-size: 14px;
-}
-
-.summary-item{
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid #047857;
-  font-size: 13px;
-}
-
-.summary-item:last-child{
-  border-bottom: none;
-}
-
-/* ===== ADMIN BADGE ===== */
-.admin-badge{
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  background: #10b981;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: bold;
-  z-index: 50;
-  display: none;
-}
-
-.admin-badge.active{
-  display: block;
-}
-
-/* ===== SCROLLBAR ===== */
-::-webkit-scrollbar{
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track{
-  background: #334155;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb{
-  background: #64748b;
-  border-radius: 4px;
-}
-
-/* ===== RESPONSIVE ===== */
-@media screen and (max-width: 768px){
-  body{ padding: 8px; }
-  h1{ font-size: 18px; }
-  h2{ font-size: 14px; }
-
-  .card{ padding: 12px; }
-
-  .nav-tab{ font-size: 13px; padding: 10px; }
-
-  th, td{ 
-    padding: 6px 2px; 
-    font-size: 11px; 
-    min-width: 45px;
-    height: 36px;
-  }
-
-  input{ font-size: 16px; padding: 4px 1px; }
-  .nameInput{ min-width: 120px; font-size: 13px; }
-  .nameCol{ min-width: 120px; left: 45px; font-size: 12px; color: #000 !important; }
-  .rankCol{ min-width: 45px; font-size: 11px; }
-
-  .size-grid{
-    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-    gap: 6px;
-  }
-
-  .size-item{ padding: 8px 3px; }
-  .size-item .size-label{ font-size: 11px; }
-
-  .btn{ padding: 10px 16px; font-size: 14px; }
-
-  .table-container{ max-height: 50vh; }
-  .operator-list{ max-height: 35vh; }
-
-  .btn-login, .btn-logout{
-    bottom: 15px;
-    right: 15px;
-    padding: 10px 16px;
-    font-size: 13px;
-  }
-}
+body{font-family:'Segoe UI',Arial;background:linear-gradient(135deg,#0f172a,#1e293b);padding:20px;color:#fff}
+h1{text-align:center;margin-bottom:20px;font-size:30px}
+.card{background:#1e293b;border-radius:18px;padding:25px;box-shadow:0 15px 35px rgba(0,0,0,0.5)}
+table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;background:#fff;color:#000;border-radius:12px}
+th,td{border:1px solid #ddd;padding:8px;text-align:center;font-size:14px;min-width:80px}
+th{background:#0f172a;color:#fff;position:sticky;top:0;z-index:5}
+
+/* FREEZE */
+.rankCol{position:sticky;left:0;background:#e2e8f0;z-index:6;font-weight:bold;min-width:70px}
+.nameCol{position:sticky;left:70px;background:#f1f5f9;z-index:6;font-weight:bold;min-width:200px}
+th.rankCol{left:0;z-index:7}
+th.nameCol{left:70px;z-index:7}
+
+.low{background:#ffb3b3}
+.mid{background:#ffe9a8}
+.high{background:#b6f5c2}
+
+input{width:75px;padding:5px;font-size:14px}
+.nameInput{width:180px}
+
+.shiftRow{background:#cbd5e1;font-weight:bold;color:#000;font-size:15px}
+.warning{font-weight:bold}
+
+.login{text-align:center;margin-bottom:20px}
+button{padding:10px 18px;background:#2563eb;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:14px}
+button:hover{background:#1d4ed8}
 </style>
 </head>
 <body>
 
-<h1>📊 DASHBOARD TRIMMING</h1>
+<h1>DASHBOARD PRODUKSI CUTTING</h1>
 
-<!-- ADMIN BADGE -->
-<div class="admin-badge" id="adminBadge">🔐 ADMIN MODE</div>
-
-<!-- LOGIN BUTTON (Floating) -->
-<button class="btn btn-login" id="loginBtn" onclick="openLoginModal()">🔐 Login Admin</button>
-<button class="btn btn-logout" id="logoutBtn" onclick="logout()" style="display: none;">🚪 Logout</button>
-
-<!-- LOGIN MODAL -->
-<div class="login-modal-overlay" id="loginModal">
-  <div class="login-modal-content">
-    <h2>🔐 Login Admin</h2>
-    <input type="password" id="pass" placeholder="Masukkan Password">
-    <br>
-    <button class="btn" onclick="login()">Login</button>
-    <button class="btn btn-danger" onclick="closeLoginModal()">Batal</button>
-  </div>
+<div class="login">
+<input type="password" id="pass" placeholder="Password Admin">
+<button onclick="login()">Login Admin</button>
 </div>
 
-<!-- MAIN APP (Always Visible - Public Access) -->
-<div id="mainApp">
-
-<!-- NAVIGATION TABS -->
-<div class="nav-tabs">
-  <button class="nav-tab active" onclick="showPage('dashboard')" id="tab-dashboard">
-    📊 Produksi
-  </button>
-  <button class="nav-tab" onclick="showPage('sizesusah')" id="tab-sizesusah">
-    📏 Size Susah
-  </button>
-</div>
-
-<!-- PAGE 1: DASHBOARD PRODUKSI -->
-<div class="page active" id="page-dashboard">
-
-  <div class="info-box">
-    <strong>Input:</strong> Angka = Hasil | <strong>P</strong> = Perbantukan | <strong>BE</strong> = Pulang Awal | <strong>U</strong> = UKS
-    | <strong>L</strong> = Libur | <strong>I</strong> = Ijin | <strong>A</strong> = Alpa
-    <br><br>
-    <strong>Mode:</strong> <span id="modeText">👁️ View Only (Public)</span>
-  </div>
-
-  <div class="legend">
-    <strong>Keterangan Status:</strong>
-    <span class="status-P">P = Perbantuan</span>
-    <span class="status-BE">BE = Pulang Awal</span>
-    <span class="status-U">U = UKS</span>
-    <span class="status-L">L = Libur</span>
-    <span class="status-I">I = Ijin</span>
-    <span class="status-A">A = Alpa</span>
-  </div>
-
-  <div class="table-container" id="tableContainer">
-    <table>
-      <thead>
-        <tr>
-          <th class="rankCol">#</th>
-          <th class="nameCol">Operator</th>
-          <script>
-            for(let i=1;i<=31;i++){document.write("<th>"+i+"</th>")}
-          </script>
-          <th>%</th>
-          <th>SP</th>
-        </tr>
-      </thead>
-      <tbody id="body"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- PAGE 2: SIZE SUSAH -->
-<div class="page" id="page-sizesusah">
-
-  <!-- PILIH TANGGAL DAN SHIFT -->
-  <div class="card">
-    <div class="header-info">
-      <label>
-        Tanggal:
-        <input type="number" id="selectDay" min="1" max="31" value="1">
-      </label>
-      <label>
-        Shift:
-        <select id="selectShift" onchange="changeShift()">
-          <option value="SHIFT A">SHIFT A</option>
-          <option value="SHIFT B">SHIFT B</option>
-          <option value="SHIFT C">SHIFT C</option>
-        </select>
-      </label>
-    </div>
-  </div>
-
-  <!-- PILIH MODEL -->
-  <div class="card">
-    <h2>📋 Pilih Model</h2>
-    <div class="model-tabs">
-      <div class="model-tab active" onclick="setModel('003')" id="tab003">
-        <h3>MODEL 003</h3>
-        <p>Size 2.5 - 16</p>
-      </div>
-      <div class="model-tab" onclick="setModel('008')" id="tab008">
-        <h3>MODEL 008</h3>
-        <p>Size 2.5 - 16</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- PILIH SIZE SUSAH -->
-  <div class="card">
-    <h2>✅ Pilih Size Susah Hari Ini</h2>
-    <p style="font-size: 12px; color: #94a3b8; margin-bottom: 10px;">
-      Klik size yang dianggap susah hari ini (bisa pilih multiple) - <strong>Hanya Admin</strong>
-    </p>
-    <div class="size-grid" id="sizeGrid"></div>
-    <div style="text-align: center; margin-top: 10px;">
-      <button class="btn btn-sm btn-warning" onclick="clearAllSizes()" id="btnClearSizes">🗑️ Clear Semua</button>
-      <button class="btn btn-sm btn-success" onclick="selectAllSizes()" id="btnSelectAll">✓ Pilih Semua</button>
-    </div>
-  </div>
-
-  <!-- DAFTAR OPERATOR -->
-  <div class="card">
-    <h2>👷 Daftar Operator & Size Susah</h2>
-    <div class="operator-list" id="operatorList"></div>
-  </div>
-
-  <!-- SUMMARY -->
-  <div class="summary-card">
-    <h3>📊 Ringkasan Hari Ini</h3>
-    <div class="summary-item">
-      <span>Total Operator:</span>
-      <span id="totalOps">0</span>
-    </div>
-    <div class="summary-item">
-      <span>Total Size Susah:</span>
-      <span id="totalSizes">0</span>
-    </div>
-    <div class="summary-item">
-      <span>Model:</span>
-      <span id="summaryModel">003</span>
-    </div>
-    <div class="summary-item">
-      <span>Shift:</span>
-      <span id="summaryShift">SHIFT A</span>
-    </div>
-    <div class="summary-item">
-      <span>Mode:</span>
-      <span id="summaryMode">👁️ View Only</span>
-    </div>
-  </div>
-</div>
-
-</div><!-- end mainApp -->
-
-<!-- MODAL SIZE SUSAH -->
-<div class="modal-overlay" id="sizeModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Pilih Size Susah untuk <span id="modalOpName"></span></h3>
-      <button class="close-modal" onclick="closeModal()">&times;</button>
-    </div>
-    <div class="size-grid" id="modalSizeGrid"></div>
-    <div style="text-align: center; margin-top: 15px;">
-      <button class="btn btn-success" onclick="saveOperatorSizes()">💾 Simpan</button>
-      <button class="btn btn-danger" onclick="closeModal()">❌ Batal</button>
-    </div>
-  </div>
-</div>
-
+<div class="card">
+<div style="overflow:auto; max-height:75vh;">
+<table>
+<thead>
+<tr>
+<th class="rankCol">Rank</th>
+<th class="nameCol">Shift / Mesin / Operator</th>
 <script>
-// ==========================================
-// FIREBASE CONFIG
-// ==========================================
+for(let i=1;i<=31;i++){document.write("<th>"+i+"</th>")}
+</script>
+<th>%</th>
+<th>SP</th>
+</tr>
+</thead>
+<tbody id="body"></tbody>
+</table>
+</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD3WEe4qb-QgpNYJuD_3zettZN8IFOfWVc",
@@ -897,553 +75,127 @@ const firebaseConfig = {
   appId: "1:296148451757:web:7041bb382da038f0e1a124"
 };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
+const TARGET = 700;
 const ADMIN_PASS = "bangkumisganteng123";
 let isAdmin = false;
-
-// Dashboard variables
-const TARGET = 450;
 let currentData = {};
-const shifts = { "SHIFT A": 30, "SHIFT B": 30, "SHIFT C": 30 };
-const SPECIAL_STATUS = ['P', 'BE', 'U'];
 
-// Size Susah variables
-let currentModel = '003';
-let currentShift = 'SHIFT A';
-let currentDay = 1;
-let selectedSizes = [];
-let currentOperatorKey = null;
-let sizeSusahData = {};
-let operatorNames = {};
+const shifts = ["SHIFT A","SHIFT B","SHIFT C"];
+const machines = ["MESIN 1","MESIN 2","MESIN 3","MESIN 4","MESIN 5","MESIN 6"];
+const operatorPerMachine = 7;
 
-const ALL_SIZES = [
-  '2.5', '3', '3.5', '4', '4.5', '5', '5.5', '6', '6.5', 
-  '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', 
-  '11', '11.5', '12', '12.5', '13', '14', '15', '16'
-];
-
-// ==========================================
-// LOGIN / LOGOUT FUNCTIONS
-// ==========================================
-function openLoginModal(){
-  document.getElementById("loginModal").classList.add("active");
-  document.getElementById("pass").value = "";
-  document.getElementById("pass").focus();
+window.login = function(){
+ if(document.getElementById("pass").value===ADMIN_PASS){
+   isAdmin=true;
+   alert("Login berhasil");
+   render(currentData);
+ }else{
+   alert("Password salah");
+ }
 }
 
-function closeLoginModal(){
-  document.getElementById("loginModal").classList.remove("active");
+function render(data={}){
+ currentData = data || {};
+ const tbody=document.getElementById("body");
+ tbody.innerHTML="";
+
+ shifts.forEach(shift=>{
+   tbody.innerHTML+=`<tr class='shiftRow'><td colspan='35'>${shift}</td></tr>`;
+
+   let rankingData=[];
+
+   machines.forEach(machine=>{
+     tbody.innerHTML+=`<tr class='shiftRow'><td colspan='35'>${machine}</td></tr>`;
+
+     for(let op=1; op<=operatorPerMachine; op++){
+       let operatorKey = shift+"_"+machine+"_OP"+op;
+       let opData = currentData?.[operatorKey] || {};
+       let nama = opData.nama || operatorKey;
+
+       let totalPercent=0;
+       let count=0;
+       let consecutiveLow=0;
+       let maxConsecutiveLow=0;
+
+       let row=`<tr data-key='${operatorKey}'>`;
+       row+=`<td class='rankCol'>-</td>`;
+
+       if(isAdmin){
+         row+=`<td class='nameCol'><input class='nameInput' value='${nama}' onchange="saveName('${operatorKey}',this.value)"></td>`;
+       }else{
+         row+=`<td class='nameCol'>${nama}</td>`;
+       }
+
+       for(let d=1; d<=31; d++){
+         const val=opData?.[d]?.hasil||0;
+         let cls="";
+
+         if(val>0){
+           let p=val/TARGET*100;
+           totalPercent+=p; count++;
+
+           if(val<=500){ cls="low"; consecutiveLow++; }
+           else if(val<=699){
+             if(consecutiveLow>maxConsecutiveLow) maxConsecutiveLow=consecutiveLow;
+             consecutiveLow=0;
+             cls="mid";
+           }
+           else{
+             if(consecutiveLow>maxConsecutiveLow) maxConsecutiveLow=consecutiveLow;
+             consecutiveLow=0;
+             cls="high";
+           }
+         }
+
+         if(isAdmin){
+           row+=`<td class='${cls}'><input type='number' value='${val}' onchange="save('${operatorKey}',${d},this.value)"></td>`;
+         }else{
+           row+=`<td class='${cls}'>${val}</td>`;
+         }
+       }
+
+       if(consecutiveLow>maxConsecutiveLow) maxConsecutiveLow=consecutiveLow;
+
+       let avg=count? (totalPercent/count).toFixed(1):0;
+       rankingData.push({key:operatorKey,avg:Number(avg)});
+
+       let spText="-";
+       if(maxConsecutiveLow>=3){
+         let spLevel=Math.floor(maxConsecutiveLow/3);
+         spText="SP " + spLevel;
+       }
+
+       row+=`<td>${avg}%</td>`;
+       row+=`<td class='warning'>${spText}</td></tr>`;
+       tbody.innerHTML+=row;
+     }
+   });
+
+   // Ranking per shift
+   rankingData.sort((a,b)=>b.avg-a.avg);
+   rankingData.forEach((r,index)=>{
+     const row=document.querySelector(`tr[data-key='${r.key}']`);
+     if(row){ row.children[0].innerText=index+1; }
+   });
+ });
 }
 
-function login(){
-  const input = document.getElementById("pass");
-  if(input.value === ADMIN_PASS){
-    isAdmin = true;
-    closeLoginModal();
-    updateUIForAdmin();
-    renderDashboard(); // Re-render to show inputs
-    updateOperatorList(); // Re-render size susah
-    alert("✅ Login berhasil! Anda sekarang dapat mengedit data.");
-  } else {
-    alert("❌ Password salah!");
-    input.value = "";
-    input.focus();
-  }
+window.save=function(op,day,value){
+ set(ref(db,'cutting/'+op+'/'+day),{hasil:Number(value)})
 }
 
-function logout(){
-  isAdmin = false;
-  updateUIForPublic();
-  renderDashboard(); // Re-render to hide inputs
-  updateOperatorList(); // Re-render size susah
-  alert("🚪 Logout berhasil! Mode view only.");
+window.saveName=function(op,name){
+ set(ref(db,'cutting/'+op+'/nama'),name)
 }
 
-function updateUIForAdmin(){
-  document.getElementById("adminBadge").classList.add("active");
-  document.getElementById("loginBtn").style.display = "none";
-  document.getElementById("logoutBtn").style.display = "block";
-  document.getElementById("modeText").innerHTML = "✏️ Edit Mode (Admin)";
-  document.getElementById("summaryMode").textContent = "✏️ Edit Mode";
-
-  // Enable size susah buttons
-  document.getElementById("btnClearSizes").disabled = false;
-  document.getElementById("btnSelectAll").disabled = false;
-
-  // Enable size grid clicks
-  document.getElementById("sizeGrid").style.pointerEvents = "auto";
-  document.getElementById("sizeGrid").style.opacity = "1";
-}
-
-function updateUIForPublic(){
-  document.getElementById("adminBadge").classList.remove("active");
-  document.getElementById("loginBtn").style.display = "block";
-  document.getElementById("logoutBtn").style.display = "none";
-  document.getElementById("modeText").innerHTML = "👁️ View Only (Public)";
-  document.getElementById("summaryMode").textContent = "👁️ View Only";
-
-  // Disable size susah buttons
-  document.getElementById("btnClearSizes").disabled = true;
-  document.getElementById("btnSelectAll").disabled = true;
-
-  // Disable size grid clicks
-  document.getElementById("sizeGrid").style.pointerEvents = "none";
-  document.getElementById("sizeGrid").style.opacity = "0.6";
-}
-
-// ==========================================
-// NAVIGATION
-// ==========================================
-function showPage(pageName){
-  // Update tabs
-  document.querySelectorAll('.nav-tab').forEach(function(tab){
-    tab.classList.remove('active');
-  });
-  document.getElementById('tab-' + pageName).classList.add('active');
-
-  // Update pages
-  document.querySelectorAll('.page').forEach(function(page){
-    page.classList.remove('active');
-  });
-  document.getElementById('page-' + pageName).classList.add('active');
-}
-
-// ==========================================
-// DASHBOARD FUNCTIONS
-// ==========================================
-function initDashboard(){
-  db.ref('maret').on('value', function(snapshot){
-    currentData = snapshot.val() || {};
-    console.log('Data loaded:', currentData); // Debug log
-    renderDashboard();
-  });
-}
-
-function isSpecialStatus(value){
-  if(!value) return false;
-  return SPECIAL_STATUS.indexOf(String(value).toUpperCase().trim()) > -1;
-}
-
-function getNumericValue(value){
-  if(isSpecialStatus(value)) return 0;
-  return Number(value) || 0;
-}
-
-function getRankDisplay(rank){
-  if(rank === 1) return "🥇";
-  if(rank === 2) return "🥈";
-  if(rank === 3) return "🥉";
-  return rank;
-}
-
-function renderDashboard(){
-  const tbody = document.getElementById("body");
-  tbody.innerHTML = "";
-
-  Object.keys(shifts).forEach(function(shiftName){
-    let shiftRankingData = [];
-    tbody.innerHTML += "<tr class='shiftRow'><td colspan='35'>" + shiftName + "</td></tr>";
-
-    for(let i = 1; i <= shifts[shiftName]; i++){
-      let operatorKey = shiftName + "_OP" + i;
-      let opData = currentData[operatorKey] || {};
-
-      // FIX: Better handling for operator name
-      let nama = "OP " + i; // Default value
-      if(opData.nama && opData.nama.trim() !== ""){
-        nama = opData.nama.trim();
-      }
-
-      console.log('Operator:', operatorKey, 'Name:', nama); // Debug log
-
-      let totalPercent = 0, count = 0, consecutiveLow = 0, maxConsecutiveLow = 0;
-      let row = "<tr data-key='" + operatorKey + "'>";
-      row += "<td class='rankCol' data-rank='" + operatorKey + "'>-</td>";
-
-      // Nama column - editable only for admin
-      if(isAdmin){
-        row += "<td class='nameCol'><input class='nameInput' type='text' value='" + escapeHtml(nama) + "' onchange=\"saveName('" + operatorKey + "', this.value)\" placeholder='Nama'></td>";
-      } else {
-        // FIX: Use span with explicit class for better visibility
-        row += "<td class='nameCol'><span class='nameCol-text'>" + escapeHtml(nama) + "</span></td>";
-      }
-
-      for(let d = 1; d <= 31; d++){
-        let rawValue = (opData[d] && opData[d].hasil) || '';
-        let val = getNumericValue(rawValue);
-        let isStatus = isSpecialStatus(rawValue);
-        let cls = "", displayValue = rawValue;
-
-        if(isStatus){
-          cls = "status-" + rawValue.toUpperCase().trim();
-          if(consecutiveLow > maxConsecutiveLow) maxConsecutiveLow = consecutiveLow;
-          consecutiveLow = 0;
-        } else if(val > 0){
-          let p = val / TARGET * 100;
-          totalPercent += p;
-          count++;
-          if(p < 80){
-            cls = "low";
-            consecutiveLow++;
-          } else {
-            if(consecutiveLow > maxConsecutiveLow) maxConsecutiveLow = consecutiveLow;
-            consecutiveLow = 0;
-            if(p < 100) cls = "mid";
-            else cls = "high";
-          }
-        } else {
-          if(consecutiveLow > maxConsecutiveLow) maxConsecutiveLow = consecutiveLow;
-          consecutiveLow = 0;
-          displayValue = '';
-        }
-
-        // Input field - editable only for admin
-        if(isAdmin){
-          row += "<td class='" + cls + "'><input type='text' inputmode='numeric' value='" + displayValue + "' onchange=\"save('" + operatorKey + "', " + d + ", this.value)\" style='text-transform:uppercase;'></td>";
-        } else {
-          row += "<td class='" + cls + "'>" + displayValue + "</td>";
-        }
-      }
-
-      if(consecutiveLow > maxConsecutiveLow) maxConsecutiveLow = consecutiveLow;
-      let avg = count ? (totalPercent / count).toFixed(1) : 0;
-      shiftRankingData.push({key: operatorKey, avg: Number(avg)});
-
-      let spText = "-";
-      if(maxConsecutiveLow >= 3){
-        spText = "SP" + Math.floor(maxConsecutiveLow / 3);
-      }
-
-      row += "<td><b>" + avg + "%</b></td><td class='warning'>" + spText + "</td></tr>";
-      tbody.innerHTML += row;
-    }
-
-    shiftRankingData.sort(function(a, b){ return b.avg - a.avg; });
-    shiftRankingData.forEach(function(r, index){
-      let rank = index + 1;
-      let rankCell = document.querySelector("td[data-rank='" + r.key + "']");
-      if(rankCell) rankCell.innerHTML = getRankDisplay(rank);
-    });
-  });
-}
-
-// Helper function to escape HTML
-function escapeHtml(text){
-  if(!text) return "";
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-function save(op, day, value){
-  if(!isAdmin){
-    alert("❌ Anda harus login sebagai admin untuk mengedit data!");
-    return;
-  }
-
-  let trimmedValue = value.trim().toUpperCase();
-  if(SPECIAL_STATUS.indexOf(trimmedValue) > -1){
-    db.ref('maret/' + op + '/' + day).set({hasil: trimmedValue});
-  } else if(trimmedValue === '' || trimmedValue === '0'){
-    db.ref('maret/' + op + '/' + day).set({hasil: 0});
-  } else {
-    let numValue = Number(trimmedValue);
-    if(!isNaN(numValue) && numValue >= 0){
-      db.ref('maret/' + op + '/' + day).set({hasil: numValue});
-    }
-  }
-}
-
-function saveName(op, name){
-  if(!isAdmin){
-    alert("❌ Anda harus login sebagai admin untuk mengedit data!");
-    return;
-  }
-
-  db.ref('maret/' + op + '/nama').set(name.trim());
-}
-
-// ==========================================
-// SIZE SUSAH FUNCTIONS
-// ==========================================
-function initSizeSusah(){
-  generateSizeGrid();
-
-  db.ref('size_susah').on('value', function(snapshot){
-    sizeSusahData = snapshot.val() || {};
-    updateOperatorList();
-  });
-
-  db.ref('maret').on('value', function(snapshot){
-    let data = snapshot.val() || {};
-    operatorNames = {};
-    Object.keys(data).forEach(function(key){
-      if(data[key].nama) operatorNames[key] = data[key].nama;
-    });
-    updateOperatorList();
-  });
-
-  document.getElementById("selectDay").addEventListener("change", function(){
-    currentDay = parseInt(this.value);
-    updateOperatorList();
-    updateSummary();
-  });
-}
-
-function generateSizeGrid(){
-  let grid = document.getElementById("sizeGrid");
-  grid.innerHTML = "";
-  ALL_SIZES.forEach(function(size){
-    let div = document.createElement("div");
-    div.className = "size-item";
-    div.dataset.size = size;
-    div.onclick = function(){ 
-      if(isAdmin) toggleSize(size); 
-    };
-    div.innerHTML = "<span class='size-label'>" + size + "</span><span class='size-check'>✓</span>";
-    grid.appendChild(div);
-  });
-}
-
-function toggleSize(size){
-  if(!isAdmin){
-    alert("❌ Hanya admin yang dapat mengubah size susah!");
-    return;
-  }
-
-  let index = selectedSizes.indexOf(size);
-  if(index > -1){
-    selectedSizes.splice(index, 1);
-  } else {
-    selectedSizes.push(size);
-  }
-  updateSizeGrid();
-  updateOperatorList();
-  updateSummary();
-}
-
-function updateSizeGrid(){
-  document.querySelectorAll("#sizeGrid .size-item").forEach(function(item){
-    if(selectedSizes.indexOf(item.dataset.size) > -1){
-      item.classList.add("selected");
-    } else {
-      item.classList.remove("selected");
-    }
-  });
-}
-
-function setModel(model){
-  currentModel = model;
-  if(model === '003'){
-    document.getElementById("tab003").classList.add("active");
-    document.getElementById("tab008").classList.remove("active");
-  } else {
-    document.getElementById("tab003").classList.remove("active");
-    document.getElementById("tab008").classList.add("active");
-  }
-  updateOperatorList();
-  updateSummary();
-}
-
-function changeShift(){
-  currentShift = document.getElementById("selectShift").value;
-  updateOperatorList();
-  updateSummary();
-}
-
-function updateOperatorList(){
-  let list = document.getElementById("operatorList");
-  list.innerHTML = "";
-  let totalOps = shifts[currentShift];
-
-  for(let i = 1; i <= totalOps; i++){
-    let opKey = currentShift + "_OP" + i;
-    let opName = operatorNames[opKey] || "OP " + i;
-    let savedSizes = [];
-
-    if(sizeSusahData[currentShift] && 
-       sizeSusahData[currentShift][opKey] && 
-       sizeSusahData[currentShift][opKey][currentModel] &&
-       sizeSusahData[currentShift][opKey][currentModel][currentDay]){
-      savedSizes = sizeSusahData[currentShift][opKey][currentModel][currentDay];
-    }
-
-    let div = document.createElement("div");
-    div.className = "operator-item";
-
-    // Only show "+ Size" button for admin
-    let addButton = "";
-    if(isAdmin){
-      addButton = "<button class='btn-add-size' onclick=\"openSizeModal('" + opKey + "', '" + escapeHtml(opName) + "')\">+ Size</button>";
-    }
-
-    div.innerHTML = 
-      "<div class='operator-name'>" + escapeHtml(opName) + "</div>" +
-      "<div class='operator-sizes'>" + renderSizeTags(savedSizes, opKey) + "</div>" +
-      addButton;
-    list.appendChild(div);
-  }
-  document.getElementById("totalOps").textContent = totalOps;
-}
-
-function renderSizeTags(sizes, opKey){
-  if(sizes.length === 0) return "<span style='color: #64748b; font-size: 12px;'>Belum ada size</span>";
-
-  return sizes.map(function(size){
-    // Only show remove button for admin
-    let removeBtn = "";
-    if(isAdmin){
-      removeBtn = "<span class='remove' onclick=\"removeSize('" + opKey + "', '" + size + "')\">×</span>";
-    }
-    return "<span class='size-tag'>" + size + removeBtn + "</span>";
-  }).join('');
-}
-
-function openSizeModal(opKey, opName){
-  if(!isAdmin){
-    alert("❌ Hanya admin yang dapat mengedit size susah!");
-    return;
-  }
-
-  currentOperatorKey = opKey;
-  document.getElementById("modalOpName").textContent = opName;
-
-  let currentSizes = [];
-  if(sizeSusahData[currentShift] && 
-     sizeSusahData[currentShift][opKey] && 
-     sizeSusahData[currentShift][opKey][currentModel] &&
-     sizeSusahData[currentShift][opKey][currentModel][currentDay]){
-    currentSizes = sizeSusahData[currentShift][opKey][currentModel][currentDay];
-  }
-
-  let availableSizes = selectedSizes.length > 0 ? selectedSizes : ALL_SIZES;
-
-  let grid = document.getElementById("modalSizeGrid");
-  grid.innerHTML = "";
-
-  availableSizes.forEach(function(size){
-    let isSelected = currentSizes.indexOf(size) > -1;
-    let div = document.createElement("div");
-    div.className = "size-item" + (isSelected ? " selected" : "");
-    div.dataset.size = size;
-    div.onclick = function(){
-      this.classList.toggle("selected");
-    };
-    div.innerHTML = "<span class='size-label'>" + size + "</span><span class='size-check'>✓</span>";
-    grid.appendChild(div);
-  });
-
-  document.getElementById("sizeModal").classList.add("active");
-}
-
-function closeModal(){
-  document.getElementById("sizeModal").classList.remove("active");
-  currentOperatorKey = null;
-}
-
-function saveOperatorSizes(){
-  if(!isAdmin){
-    alert("❌ Anda harus login sebagai admin!");
-    return;
-  }
-
-  if(!currentOperatorKey) return;
-
-  let selected = [];
-  document.querySelectorAll("#modalSizeGrid .size-item.selected").forEach(function(item){
-    selected.push(item.dataset.size);
-  });
-
-  let path = 'size_susah/' + currentShift + '/' + currentOperatorKey + '/' + currentModel + '/' + currentDay;
-  db.ref(path).set(selected);
-
-  closeModal();
-  updateSummary();
-}
-
-function removeSize(opKey, size){
-  if(!isAdmin){
-    alert("❌ Anda harus login sebagai admin!");
-    return;
-  }
-
-  let path = 'size_susah/' + currentShift + '/' + opKey + '/' + currentModel + '/' + currentDay;
-  let currentSizes = [];
-
-  if(sizeSusahData[currentShift] && 
-     sizeSusahData[currentShift][opKey] && 
-     sizeSusahData[currentShift][opKey][currentModel] &&
-     sizeSusahData[currentShift][opKey][currentModel][currentDay]){
-    currentSizes = sizeSusahData[currentShift][opKey][currentModel][currentDay];
-  }
-
-  let newSizes = currentSizes.filter(function(s){ return s !== size; });
-  db.ref(path).set(newSizes);
-}
-
-function clearAllSizes(){
-  if(!isAdmin){
-    alert("❌ Hanya admin yang dapat melakukan ini!");
-    return;
-  }
-
-  selectedSizes = [];
-  updateSizeGrid();
-  updateOperatorList();
-  updateSummary();
-}
-
-function selectAllSizes(){
-  if(!isAdmin){
-    alert("❌ Hanya admin yang dapat melakukan ini!");
-    return;
-  }
-
-  selectedSizes = ALL_SIZES.slice();
-  updateSizeGrid();
-  updateOperatorList();
-  updateSummary();
-}
-
-function updateSummary(){
-  document.getElementById("totalSizes").textContent = selectedSizes.length;
-  document.getElementById("summaryModel").textContent = currentModel;
-  document.getElementById("summaryShift").textContent = currentShift;
-}
-
-// ==========================================
-// INITIALIZATION
-// ==========================================
-document.addEventListener('DOMContentLoaded', function(){
-  initDashboard();
-  initSizeSusah();
-  updateUIForPublic(); // Start in public mode
-});
-
-// Make functions global for onclick
-window.openLoginModal = openLoginModal;
-window.closeLoginModal = closeLoginModal;
-window.login = login;
-window.logout = logout;
-window.showPage = showPage;
-window.save = save;
-window.saveName = saveName;
-window.setModel = setModel;
-window.changeShift = changeShift;
-window.openSizeModal = openSizeModal;
-window.closeModal = closeModal;
-window.saveOperatorSizes = saveOperatorSizes;
-window.removeSize = removeSize;
-window.clearAllSizes = clearAllSizes;
-window.selectAllSizes = selectAllSizes;
+onValue(ref(db,'cutting'),(snap)=>{
+ render(snap.val());
+})
 
 </script>
 
 </body>
-</html> 
+</html>
