@@ -3,351 +3,223 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Produksi Cutting - Multi Bulan</title>
+<title>Dashboard Produksi Cutting</title>
+
 <style>
-body{font-family:'Segoe UI',Arial;background:linear-gradient(135deg,#0f172a,#1e293b);padding:20px;color:#fff}
-h1{text-align:center;margin-bottom:10px;font-size:28px}
-.card{background:#1e293b;border-radius:18px;padding:25px;box-shadow:0 15px 35px rgba(0,0,0,0.5)}
-table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;background:#fff;color:#000;border-radius:12px}
-th,td{border:1px solid #ddd;padding:8px;text-align:center;font-size:14px;min-width:80px}
-th{background:#0f172a;color:#fff;position:sticky;top:0;z-index:5}
+body{font-family:Arial;background:#0f172a;padding:20px;color:#fff}
+h1{text-align:center}
+.card{background:#1e293b;border-radius:14px;padding:20px}
+table{border-collapse:collapse;width:max-content;min-width:100%;background:#fff;color:#000}
+th,td{border:1px solid #ccc;padding:6px;text-align:center}
+th{background:#0f172a;color:#fff;position:sticky;top:0}
 
-/* FREEZE */
-.rankCol{position:sticky;left:0;background:#e2e8f0;z-index:6;font-weight:bold;min-width:70px}
-.nameCol{position:sticky;left:70px;background:#f1f5f9;z-index:6;font-weight:bold;min-width:200px}
-th.rankCol{left:0;z-index:7}
-th.nameCol{left:70px;z-index:7}
+.rankCol{position:sticky;left:0;background:#e2e8f0;font-weight:bold}
+.nameCol{position:sticky;left:70px;background:#f1f5f9;font-weight:bold}
 
-/* Warna status produksi */
 .low{background:#ffb3b3}
 .mid{background:#ffe9a8}
 .high{background:#b6f5c2}
 
-/* Warna kode ketidakhadiran */
-.code-p{background:#93c5fd !important; color:#1e3a8a !important; font-weight:bold}
-.code-be{background:#fca5a5 !important; color:#7f1d1d !important; font-weight:bold}
-.code-u{background:#86efac !important; color:#14532d !important; font-weight:bold}
-.code-i{background:#fde047 !important; color:#713f12 !important; font-weight:bold}
-.code-a{background:#f87171 !important; color:#7f1d1d !important; font-weight:bold}
-.code-m{background:#c4b5fd !important; color:#5b21b6 !important; font-weight:bold}
-.code-l{background:#fdba74 !important; color:#9a3412 !important; font-weight:bold}
+.shiftRow{background:#cbd5e1;font-weight:bold;color:#000}
+.warning{color:red;font-weight:bold}
 
-input{width:75px;padding:5px;font-size:14px}
-.nameInput{width:180px}
-
-.shiftRow{background:#cbd5e1;font-weight:bold;color:#000;font-size:15px}
-.warning{font-weight:bold;color:#dc2626}
-
-.login{text-align:center;margin-bottom:20px}
-button{padding:10px 18px;background:#2563eb;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:14px}
-button:hover{background:#1d4ed8}
-
-.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:15px;justify-content:center;font-size:12px}
-.legend-item{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.1);padding:5px 10px;border-radius:20px}
-.legend-color{width:20px;height:20px;border-radius:4px;border:1px solid rgba(255,255,255,0.3)}
-
-.code-input{width:60px;text-align:center;text-transform:uppercase;font-weight:bold}
-
-/* Selector Bulan */
-.month-selector{display:flex;gap:15px;justify-content:center;margin-bottom:20px;flex-wrap:wrap}
-.month-selector select{padding:10px 15px;font-size:16px;border-radius:8px;border:none;background:#334155;color:#fff;cursor:pointer}
-.month-selector button{background:#10b981;padding:10px 20px}
-.month-selector button:hover{background:#059669}
-
-.current-month{text-align:center;font-size:18px;margin-bottom:15px;color:#94a3b8}
+.month-selector{display:flex;gap:10px;justify-content:center;margin-bottom:15px;flex-wrap:wrap}
+button{padding:8px 16px;border:none;border-radius:6px;cursor:pointer}
 </style>
+
 </head>
 <body>
 
 <h1>DASHBOARD PRODUKSI CUTTING</h1>
 
 <div class="month-selector">
-  <select id="monthSelect">
-    <option value="0">Januari</option>
-    <option value="1">Februari</option>
-    <option value="2">Maret</option>
-    <option value="3">April</option>
-    <option value="4">Mei</option>
-    <option value="5">Juni</option>
-    <option value="6">Juli</option>
-    <option value="7">Agustus</option>
-    <option value="8">September</option>
-    <option value="9">Oktober</option>
-    <option value="10">November</option>
-    <option value="11">Desember</option>
-  </select>
-  <select id="yearSelect">
-    <option value="2024">2024</option>
-    <option value="2025">2025</option>
-    <option value="2026">2026</option>
-    <option value="2027">2027</option>
-  </select>
-  <button onclick="changeMonth()">Tampilkan Data</button>
-</div>
 
-<div class="current-month" id="currentMonthLabel">Bulan: Maret 2025</div>
+<select id="monthSelect">
+<option value="0">Januari</option>
+<option value="1">Februari</option>
+<option value="2">Maret</option>
+<option value="3">April</option>
+<option value="4">Mei</option>
+<option value="5">Juni</option>
+<option value="6">Juli</option>
+<option value="7">Agustus</option>
+<option value="8">September</option>
+<option value="9">Oktober</option>
+<option value="10">November</option>
+<option value="11">Desember</option>
+</select>
 
-<div class="login">
-<input type="password" id="pass" placeholder="Password Admin">
-<button onclick="login()">Login Admin</button>
-</div>
+<select id="yearSelect">
+<option value="2026">2026</option>
+<option value="2027">2027</option>
+<option value="2028">2028</option>
+<option value="2029">2029</option>
+<option value="2030">2030</option>
+</select>
 
-<div class="legend">
-  <div class="legend-item"><div class="legend-color code-p"></div>P = Perbantuan</div>
-  <div class="legend-item"><div class="legend-color code-be"></div>BE = Pulang Awal</div>
-  <div class="legend-item"><div class="legend-color code-u"></div>U = UKS</div>
-  <div class="legend-item"><div class="legend-color code-i"></div>I = Ijin</div>
-  <div class="legend-item"><div class="legend-color code-a"></div>A = Alpa</div>
-  <div class="legend-item"><div class="legend-color code-m"></div>M = Minggu</div>
-  <div class="legend-item"><div class="legend-color code-l"></div>L = Libur</div>
+<button onclick="changeMonth()">Tampilkan</button>
+
 </div>
 
 <div class="card">
-<div style="overflow:auto; max-height:75vh;">
+<div style="overflow:auto;max-height:80vh">
+
 <table>
 <thead>
-<tr>
-<th class="rankCol">Rank</th>
-<th class="nameCol">Shift / Mesin / Operator</th>
-<tbody id="headerDays"></tbody>
-<th>%</th>
-<th>SP</th>
-</tr>
+<tr id="headerDays"></tr>
 </thead>
 <tbody id="body"></tbody>
 </table>
+
 </div>
 </div>
 
 <script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, set, onValue, off } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+import { getDatabase, ref, onValue, off } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD3WEe4qb-QgpNYJuD_3zettZN8IFOfWVc",
-  authDomain: "hasil-ec37d.firebaseapp.com",
-  databaseURL: "https://hasil-ec37d-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "hasil-ec37d",
-  storageBucket: "hasil-ec37d.firebasestorage.app",
-  messagingSenderId: "296148451757",
-  appId: "1:296148451757:web:7041bb382da038f0e1a124"
+apiKey:"AIzaSyD3WEe4qb-QgpNYJuD_3zettZN8IFOfWVc",
+authDomain:"hasil-ec37d.firebaseapp.com",
+databaseURL:"https://hasil-ec37d-default-rtdb.asia-southeast1.firebasedatabase.app",
+projectId:"hasil-ec37d",
+storageBucket:"hasil-ec37d.firebasestorage.app",
+messagingSenderId:"296148451757",
+appId:"1:296148451757:web:7041bb382da038f0e1a124"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 const TARGET = 700;
-const ADMIN_PASS = "bangkumisganteng123";
-let isAdmin = false;
-let currentData = {};
-let currentMonth = new Date().getMonth();
-let currentYear = new Date().getFullYear();
+
+let currentMonth = 0;
+let currentYear = 2026;
 let unsubscribe = null;
 
 const shifts = ["SHIFT A","SHIFT B","SHIFT C"];
 const machines = ["MESIN 1","MESIN 2","MESIN 3","MESIN 4","MESIN 5","MESIN 6"];
 const operatorPerMachine = 7;
-const VALID_CODES = ['P', 'BE', 'U', 'I', 'A', 'M', 'L'];
 
-const monthNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-
-// Set default selector
-document.getElementById('monthSelect').value = currentMonth;
-document.getElementById('yearSelect').value = currentYear;
-
-window.login = function(){
- if(document.getElementById("pass").value === ADMIN_PASS){
-   isAdmin = true;
-   alert("Login berhasil");
-   loadData();
- } else {
-   alert("Password salah");
- }
+function getDaysInMonth(month,year){
+return new Date(year,month+1,0).getDate();
 }
 
-window.changeMonth = function() {
-  currentMonth = parseInt(document.getElementById('monthSelect').value);
-  currentYear = parseInt(document.getElementById('yearSelect').value);
-  loadData();
+function renderHeader(){
+
+const days = getDaysInMonth(currentMonth,currentYear);
+const row = document.getElementById("headerDays");
+
+row.innerHTML = "<th class='rankCol'>Rank</th><th class='nameCol'>Operator</th>";
+
+for(let i=1;i<=days;i++){
+row.innerHTML += "<th>"+i+"</th>";
 }
 
-function getDaysInMonth(month, year) {
-  return new Date(year, month + 1, 0).getDate();
+row.innerHTML += "<th>%</th><th>SP</th>";
+
 }
 
-function getCodeClass(code) {
-  if (!code) return '';
-  const upperCode = code.toString().toUpperCase();
-  if (VALID_CODES.includes(upperCode)) {
-    return 'code-' + upperCode.toLowerCase();
-  }
-  return '';
+window.changeMonth = function(){
+
+currentMonth = parseInt(document.getElementById("monthSelect").value);
+currentYear = parseInt(document.getElementById("yearSelect").value);
+
+loadData();
+
 }
 
-function isValidCode(value) {
-  if (!value) return false;
-  const upperValue = value.toString().toUpperCase().trim();
-  return VALID_CODES.includes(upperValue);
+function loadData(){
+
+if(unsubscribe){
+off(ref(db,"cutting/"+currentYear+"/"+currentMonth));
 }
 
-function renderHeader() {
-  const daysInMonth = getDaysInMonth(currentMonth, currentYear);
-  const headerRow = document.getElementById('headerDays');
-  headerRow.innerHTML = '';
-  
-  for(let i = 1; i <= daysInMonth; i++) {
-    headerRow.innerHTML += `<th>${i}</th>`;
-  }
-  
-  document.getElementById('currentMonthLabel').textContent = `Bulan: ${monthNames[currentMonth]} ${currentYear}`;
+renderHeader();
+
+const dataRef = ref(db,"cutting/"+currentYear+"/"+currentMonth);
+
+unsubscribe = onValue(dataRef,(snap)=>{
+render(snap.val());
+});
+
 }
 
-function loadData() {
-  // Unsubscribe listener sebelumnya jika ada
-  if (unsubscribe) {
-    off(ref(db, `cutting/${currentYear}/${currentMonth}`));
-  }
-  
-  renderHeader();
-  
-  const dataRef = ref(db, `cutting/${currentYear}/${currentMonth}`);
-  unsubscribe = onValue(dataRef, (snap) => {
-    render(snap.val());
-  });
+function render(data={}){
+
+const tbody = document.getElementById("body");
+tbody.innerHTML = "";
+
+const days = getDaysInMonth(currentMonth,currentYear);
+
+shifts.forEach(shift=>{
+
+tbody.innerHTML += "<tr class='shiftRow'><td colspan='"+(days+4)+"'>"+shift+"</td></tr>";
+
+machines.forEach(machine=>{
+
+tbody.innerHTML += "<tr class='shiftRow'><td colspan='"+(days+4)+"'>"+machine+"</td></tr>";
+
+for(let op=1; op<=operatorPerMachine; op++){
+
+let key = shift+"_"+machine+"_OP"+op;
+let opData = data?.[key] || {};
+let nama = opData.nama || "Operator "+op;
+
+let total = 0;
+let count = 0;
+let lowStreak = 0;
+let maxLow = 0;
+
+let row = "<tr>";
+row += "<td class='rankCol'>-</td>";
+row += "<td class='nameCol'>"+nama+"</td>";
+
+for(let d=1; d<=days; d++){
+
+let val = opData?.[d]?.hasil || 0;
+let cls = "";
+
+if(val>0){
+
+let percent = val/TARGET*100;
+total += percent;
+count++;
+
+if(val<=500){cls="low";lowStreak++}
+else if(val<=699){cls="mid";lowStreak=0}
+else{cls="high";lowStreak=0}
+
 }
 
-function render(data = {}) {
- currentData = data || {};
- const tbody = document.getElementById("body");
- tbody.innerHTML = "";
- const daysInMonth = getDaysInMonth(currentMonth, currentYear);
+row += "<td class='"+cls+"'>"+(val||"")+"</td>";
 
- shifts.forEach(shift => {
-   tbody.innerHTML += `<tr class='shiftRow'><td colspan='${daysInMonth + 4}'>${shift}</td></tr>`;
-
-   let rankingData = [];
-
-   machines.forEach(machine => {
-     tbody.innerHTML += `<tr class='shiftRow'><td colspan='${daysInMonth + 4}'>${machine}</td></tr>`;
-
-     for(let op = 1; op <= operatorPerMachine; op++) {
-       let operatorKey = shift + "_" + machine + "_OP" + op;
-       let opData = currentData?.[operatorKey] || {};
-       let nama = opData.nama || operatorKey;
-
-       let totalPercent = 0;
-       let count = 0;
-       let consecutiveLow = 0;
-       let maxConsecutiveLow = 0;
-       let workingDays = 0;
-
-       let row = `<tr data-key='${operatorKey}'>`;
-       row += `<td class='rankCol'>-</td>`;
-
-       if(isAdmin) {
-         row += `<td class='nameCol'><input class='nameInput' value='${nama}' onchange="saveName('${operatorKey}',this.value)"></td>`;
-       } else {
-         row += `<td class='nameCol'>${nama}</td>`;
-       }
-
-       for(let d = 1; d <= daysInMonth; d++) {
-         const dayData = opData?.[d] || {};
-         const val = dayData.hasil || 0;
-         const code = dayData.kode || '';
-         let cls = "";
-         let displayVal = val;
-         
-         if (code && isValidCode(code)) {
-           displayVal = code.toUpperCase();
-           cls = getCodeClass(code);
-           if (code.toUpperCase() === 'P') {
-             workingDays++;
-           }
-         } else if (val > 0) {
-           workingDays++;
-           let p = val / TARGET * 100;
-           totalPercent += p; 
-           count++;
-
-           if (val <= 500) { 
-             cls = "low"; 
-             consecutiveLow++; 
-           } else if (val <= 699) {
-             if (consecutiveLow > maxConsecutiveLow) maxConsecutiveLow = consecutiveLow;
-             consecutiveLow = 0;
-             cls = "mid";
-           } else {
-             if (consecutiveLow > maxConsecutiveLow) maxConsecutiveLow = consecutiveLow;
-             consecutiveLow = 0;
-             cls = "high";
-           }
-         } else {
-           if (consecutiveLow > maxConsecutiveLow) maxConsecutiveLow = consecutiveLow;
-           consecutiveLow = 0;
-         }
-
-         if (isAdmin) {
-           row += `<td class='${cls}'>
-             <input type='text' 
-                    class='code-input' 
-                    value='${displayVal}' 
-                    onchange="saveData('${operatorKey}',${d},this.value)"
-                    placeholder='0/P/BE/U/I/A/M/L'>
-           </td>`;
-         } else {
-           row += `<td class='${cls}'>${displayVal}</td>`;
-         }
-       }
-
-       if (consecutiveLow > maxConsecutiveLow) maxConsecutiveLow = consecutiveLow;
-
-       let avg = count ? (totalPercent / count).toFixed(1) : 0;
-       rankingData.push({key: operatorKey, avg: Number(avg), workingDays: workingDays});
-
-       let spText = "-";
-       if (maxConsecutiveLow >= 3) {
-         let spLevel = Math.floor(maxConsecutiveLow / 3);
-         spText = "SP " + spLevel;
-       }
-
-       row += `<td>${avg}%</td>`;
-       row += `<td class='warning'>${spText}</td></tr>`;
-       tbody.innerHTML += row;
-     }
-   });
-
-   rankingData.sort((a, b) => b.avg - a.avg);
-   rankingData.forEach((r, index) => {
-     const row = document.querySelector(`tr[data-key='${r.key}']`);
-     if (row) { 
-       row.children[0].innerText = index + 1; 
-     }
-   });
- });
 }
 
-window.saveData = function(op, day, value) {
-  const upperValue = value.toString().toUpperCase().trim();
-  
-  if (isValidCode(upperValue)) {
-    set(ref(db, `cutting/${currentYear}/${currentMonth}/${op}/${day}`), {
-      hasil: 0,
-      kode: upperValue
-    });
-  } else {
-    const numValue = Number(value) || 0;
-    set(ref(db, `cutting/${currentYear}/${currentMonth}/${op}/${day}`), {
-      hasil: numValue,
-      kode: ''
-    });
-  }
+if(lowStreak>maxLow) maxLow = lowStreak;
+
+let avg = count ? (total/count).toFixed(1) : 0;
+
+let sp = "-";
+if(maxLow>=3){
+sp = "SP "+Math.floor(maxLow/3);
 }
 
-window.saveName = function(op, name) {
- set(ref(db, `cutting/${currentYear}/${currentMonth}/${op}/nama`), name)
+row += "<td>"+avg+"%</td>";
+row += "<td class='warning'>"+sp+"</td>";
+row += "</tr>";
+
+tbody.innerHTML += row;
+
 }
 
-// Load data awal
+});
+
+});
+
+}
+
 loadData();
 
 </script>
