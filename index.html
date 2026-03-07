@@ -13,45 +13,45 @@ th,td{border:1px solid #ddd;padding:8px;text-align:center;font-size:14px;min-wid
 th{background:#0f172a;color:#fff;position:sticky;top:0;z-index:5}
 
 /* FREEZE */
-.rankCol{position:sticky;left:0;background:#e2e8f0;z-index:6;font-weight:bold;min-width:70px}
-.nameCol{position:sticky;left:70px;background:#f1f5f9;z-index:6;font-weight:bold;min-width:200px}
+.rankCol{position:sticky;left:0;background:#e2e8f0;z-index:6;font-weight:bold;min-width:50px}
+.nameCol{position:sticky;left:50px;background:#f1f5f9;z-index:6;font-weight:bold;min-width:150px}
+.typeCol{position:sticky;left:200px;background:#f8fafc;z-index:6;font-weight:bold;min-width:100px}
 th.rankCol{left:0;z-index:7}
-th.nameCol{left:70px;z-index:7}
+th.nameCol{left:50px;z-index:7}
+th.typeCol{left:200px;z-index:7}
 
-/* Warna status produksi */
-.low{background:#ffb3b3}
-.mid{background:#ffe9a8}
-.high{background:#b6f5c2}
+/* Warna status produksi - Target baru: <1200 merah, 1201-1400 kuning, >1400 hijau */
+.low{background:#ffb3b3}    /* < 1200 */
+.mid{background:#ffe9a8}    /* 1201 - 1400 */
+.high{background:#b6f5c2}   /* > 1400 */
 
 /* Warna kode ketidakhadiran */
-.code-p{background:#93c5fd !important; color:#1e3a8a !important; font-weight:bold} /* Perbantuan - Biru */
-.code-be{background:#fca5a5 !important; color:#7f1d1d !important; font-weight:bold} /* Pulang Awal - Merah Muda */
-.code-u{background:#86efac !important; color:#14532d !important; font-weight:bold} /* UKS - Hijau */
-.code-i{background:#fde047 !important; color:#713f12 !important; font-weight:bold} /* Ijin - Kuning */
-.code-a{background:#f87171 !important; color:#7f1d1d !important; font-weight:bold} /* Alpa - Merah */
-.code-m{background:#c4b5fd !important; color:#5b21b6 !important; font-weight:bold} /* Minggu - Ungu */
-.code-l{background:#fdba74 !important; color:#9a3412 !important; font-weight:bold} /* Libur - Oranye */
-.code-bs{background:#f0abfc !important; color:#86198f !important; font-weight:bold} /* Barang Sedikit - Pink */
+.code-p{background:#93c5fd !important; color:#1e3a8a !important; font-weight:bold}
+.code-be{background:#fca5a5 !important; color:#7f1d1d !important; font-weight:bold}
+.code-u{background:#86efac !important; color:#14532d !important; font-weight:bold}
+.code-i{background:#fde047 !important; color:#713f12 !important; font-weight:bold}
+.code-a{background:#f87171 !important; color:#7f1d1d !important; font-weight:bold}
+.code-m{background:#c4b5fd !important; color:#5b21b6 !important; font-weight:bold}
+.code-l{background:#fdba74 !important; color:#9a3412 !important; font-weight:bold}
+.code-bs{background:#f0abfc !important; color:#86198f !important; font-weight:bold}
 
-input{width:75px;padding:5px;font-size:14px}
-.nameInput{width:180px}
+input{width:70px;padding:5px;font-size:13px;text-align:center}
+.nameInput{width:140px;font-size:12px}
 
-.shiftRow{background:#cbd5e1;font-weight:bold;color:#000;font-size:15px}
+.shiftRow{background:#64748b;font-weight:bold;color:#fff;font-size:16px}
+.machineRow{background:#94a3b8;font-weight:bold;color:#000;font-size:14px}
 .warning{font-weight:bold;color:#dc2626}
 
 .login{text-align:center;margin-bottom:20px}
 button{padding:10px 18px;background:#2563eb;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:14px}
 button:hover{background:#1d4ed8}
 
-.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:15px;justify-content:center;font-size:12px}
-.legend-item{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.1);padding:5px 10px;border-radius:20px}
-.legend-color{width:20px;height:20px;border-radius:4px;border:1px solid rgba(255,255,255,0.3)}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:15px;justify-content:center;font-size:11px}
+.legend-item{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.1);padding:4px 8px;border-radius:15px}
+.legend-color{width:16px;height:16px;border-radius:3px;border:1px solid rgba(255,255,255,0.3)}
 
-/* Input untuk kode */
-.code-input{width:60px;text-align:center;text-transform:uppercase;font-weight:bold}
-.has-code{background:#e0e7ff !important}
+.code-input{width:60px;text-align:center;text-transform:uppercase;font-weight:bold;font-size:12px}
 
-/* Loading indicator */
 .loading-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -73,6 +73,14 @@ button:hover{background:#1d4ed8}
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+.operator-list {
+  font-size: 11px;
+  color: #475569;
+  font-weight: normal;
+  margin-top: 4px;
+  line-height: 1.4;
+}
 </style>
 </head>
 <body>
@@ -89,13 +97,14 @@ button:hover{background:#1d4ed8}
 </div>
 
 <div class="legend">
+  <div class="legend-item"><div class="legend-color low"></div>&lt;1200 (Rendah)</div>
+  <div class="legend-item"><div class="legend-color mid"></div>1201-1400 (Sedang)</div>
+  <div class="legend-item"><div class="legend-color high"></div>&gt;1400 (Tinggi)</div>
   <div class="legend-item"><div class="legend-color code-p"></div>P = Perbantuan</div>
   <div class="legend-item"><div class="legend-color code-be"></div>BE = Pulang Awal</div>
   <div class="legend-item"><div class="legend-color code-u"></div>U = UKS</div>
   <div class="legend-item"><div class="legend-color code-i"></div>I = Ijin</div>
   <div class="legend-item"><div class="legend-color code-a"></div>A = Alpa</div>
-  <div class="legend-item"><div class="legend-color code-m"></div>M = Minggu</div>
-  <div class="legend-item"><div class="legend-color code-l"></div>L = Libur</div>
   <div class="legend-item"><div class="legend-color code-bs"></div>BS = Barang Sedikit</div>
 </div>
 
@@ -105,7 +114,8 @@ button:hover{background:#1d4ed8}
 <thead>
 <tr>
 <th class="rankCol">Rank</th>
-<th class="nameCol">Shift / Mesin / Operator</th>
+<th class="nameCol">Shift / Mesin</th>
+<th class="typeCol">Jenis</th>
 <script>
 for(let i=1;i<=31;i++){document.write("<th>"+i+"</th>")}
 </script>
@@ -135,23 +145,27 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-const TARGET = 700;
+// Target baru
+const TARGET = 1400; // Target hijau
+const TARGET_MID = 1200; // Batas bawah kuning
 const ADMIN_PASS = "bangkumisganteng123";
 let isAdmin = false;
 let currentData = {};
 let isRendering = false;
 let pendingUpdate = null;
 
-// Kode yang valid - BS tidak mempengaruhi persentase dan SP
 const VALID_CODES = ['P', 'BE', 'U', 'I', 'A', 'M', 'L', 'BS'];
-// Kode yang dianggap hari kerja untuk perhitungan ranking
-const WORKING_CODES = ['P'];
-// Kode yang tidak mempengaruhi SP dan persentase
 const IGNORED_CODES = ['BS', 'BE', 'U', 'I', 'A', 'M', 'L'];
 
 const shifts = ["SHIFT A","SHIFT B","SHIFT C"];
 const machines = ["MESIN 1","MESIN 2","MESIN 3","MESIN 4","MESIN 5","MESIN 6"];
 const operatorPerMachine = 7;
+
+// Jenis input per mesin
+const inputTypes = [
+  { key: 'cutting', label: 'CUTTING' },
+  { key: 'pelubangan', label: 'PELUBANGAN' }
+];
 
 window.login = function(){
  if(document.getElementById("pass").value===ADMIN_PASS){
@@ -186,8 +200,19 @@ function isValidCode(value) {
   return VALID_CODES.includes(upperValue);
 }
 
+function getOperatorNames(shift, machine) {
+  // Generate nama operator untuk ditampilkan
+  let names = [];
+  for(let i=1; i<=operatorPerMachine; i++) {
+    let key = `${shift}_${machine}_OP${i}`;
+    let opData = currentData?.[key] || {};
+    let nama = opData.nama || `OP${i}`;
+    names.push(nama);
+  }
+  return names;
+}
+
 function render(data={}){
-  // Cegah render berulang saat data berubah cepat
   if (isRendering) {
     pendingUpdate = data;
     return;
@@ -196,7 +221,6 @@ function render(data={}){
   isRendering = true;
   currentData = data || {};
   
-  // Gunakan requestAnimationFrame untuk tidak blocking UI
   requestAnimationFrame(() => {
     try {
       performRender();
@@ -216,60 +240,75 @@ function performRender() {
  tbody.innerHTML="";
 
  shifts.forEach(shift=>{
+   // Shift header
    const shiftRow = document.createElement('tr');
    shiftRow.className = 'shiftRow';
-   shiftRow.innerHTML = `<td colspan='35'>${shift}</td>`;
+   shiftRow.innerHTML = `<td colspan='36'>${shift}</td>`;
    tbody.appendChild(shiftRow);
 
    let rankingData=[];
 
    machines.forEach(machine=>{
+     const machineKey = `${shift}_${machine}`;
+     const operatorNames = getOperatorNames(shift, machine);
+     
+     // Machine header dengan daftar operator
      const machineRow = document.createElement('tr');
-     machineRow.className = 'shiftRow';
-     machineRow.innerHTML = `<td colspan='35'>${machine}</td>`;
+     machineRow.className = 'machineRow';
+     machineRow.innerHTML = `
+       <td colspan='36'>
+         ${machine}
+         <div class="operator-list">Operator: ${operatorNames.join(', ')}</div>
+       </td>
+     `;
      tbody.appendChild(machineRow);
 
-     for(let op=1; op<=operatorPerMachine; op++){
-       let operatorKey = shift+"_"+machine+"_OP"+op;
-       let opData = currentData?.[operatorKey] || {};
-       let nama = opData.nama || operatorKey;
+     // Render 2 baris: Cutting dan Pelubangan
+     inputTypes.forEach((type, typeIndex) => {
+       let typeKey = `${machineKey}_${type.key}`;
+       let typeData = currentData?.[typeKey] || {};
 
        let totalPercent=0;
        let count=0;
        let consecutiveLow=0;
        let maxConsecutiveLow=0;
-       let workingDays = 0;
 
        const row = document.createElement('tr');
-       row.setAttribute('data-key', operatorKey);
+       row.setAttribute('data-key', typeKey);
        
-       // Rank cell
+       // Rank cell (kosong untuk jenis, diisi di baris pertama mesin)
        const rankCell = document.createElement('td');
        rankCell.className = 'rankCol';
-       rankCell.textContent = '-';
+       rankCell.textContent = typeIndex === 0 ? '-' : '';
        row.appendChild(rankCell);
 
-       // Name cell
+       // Machine name cell (kosong untuk baris kedua)
        const nameCell = document.createElement('td');
        nameCell.className = 'nameCol';
-       if(isAdmin){
-         const nameInput = document.createElement('input');
-         nameInput.className = 'nameInput';
-         nameInput.value = nama;
-         nameInput.onchange = function() { saveName(operatorKey, this.value); };
-         nameCell.appendChild(nameInput);
+       if (typeIndex === 0) {
+         if(isAdmin){
+           // Admin bisa edit nama mesin/jenis jika perlu
+           nameCell.innerHTML = `<div style="font-size:12px">${machine}</div>`;
+         } else {
+           nameCell.innerHTML = `<div style="font-size:12px">${machine}</div>`;
+         }
        } else {
-         nameCell.textContent = nama;
+         nameCell.textContent = '';
        }
        row.appendChild(nameCell);
 
+       // Type cell (CUTTING/PELUBANGAN)
+       const typeCell = document.createElement('td');
+       typeCell.className = 'typeCol';
+       typeCell.textContent = type.label;
+       row.appendChild(typeCell);
+
        for(let d=1; d<=31; d++){
-         const dayData = opData?.[d] || {};
+         const dayData = typeData?.[d] || {};
          const val = dayData.hasil || 0;
          const code = dayData.kode || '';
          let cls="";
          let displayVal = val;
-         let isCounted = true; // Apakah hari ini dihitung untuk SP dan persentase
          
          // Jika ada kode
          if (code && isValidCode(code)) {
@@ -277,28 +316,18 @@ function performRender() {
            cls = getCodeClass(code);
            const upperCode = code.toUpperCase();
            
-           // BS dan kode lainnya tidak dihitung untuk SP dan persentase
            if (IGNORED_CODES.includes(upperCode)) {
-             isCounted = false;
-             // Reset consecutive low karena BS tidak dianggap produksi rendah
-             if (consecutiveLow > maxConsecutiveLow) maxConsecutiveLow = consecutiveLow;
-             consecutiveLow = 0;
-           } else if (WORKING_CODES.includes(upperCode)) {
-             // P (Perbantuan) dihitung sebagai hari kerja tapi tidak ada nilai produksi
-             workingDays++;
-             isCounted = false;
              if (consecutiveLow > maxConsecutiveLow) maxConsecutiveLow = consecutiveLow;
              consecutiveLow = 0;
            }
          } else if (val > 0) {
-           // Ada nilai produksi numerik
-           workingDays++;
+           // Target baru: <1200 merah, 1201-1400 kuning, >1400 hijau
            let p = val / TARGET * 100;
            
-           if (val <= 600) { 
+           if (val < 1200) { 
              cls = "low"; 
              consecutiveLow++; 
-           } else if (val <= 750) {
+           } else if (val <= 1400) {
              if (consecutiveLow > maxConsecutiveLow) maxConsecutiveLow = consecutiveLow;
              consecutiveLow = 0;
              cls = "mid";
@@ -308,11 +337,9 @@ function performRender() {
              cls = "high";
            }
            
-           // Hanya hitung persentase jika bukan dari kode BS
            totalPercent += p; 
            count++;
          } else {
-           // Hari kosong (0)
            if (consecutiveLow > maxConsecutiveLow) maxConsecutiveLow = consecutiveLow;
            consecutiveLow = 0;
          }
@@ -325,12 +352,11 @@ function performRender() {
            input.type = 'text';
            input.className = 'code-input';
            input.value = displayVal === 0 ? '' : displayVal;
-           input.placeholder = '0/P/BS';
+           input.placeholder = '0/BS';
            input.onchange = function() { 
-             // Debounce save
              clearTimeout(this.saveTimeout);
              this.saveTimeout = setTimeout(() => {
-               saveData(operatorKey, d, this.value);
+               saveData(typeKey, d, this.value);
              }, 300);
            };
            cell.appendChild(input);
@@ -343,9 +369,25 @@ function performRender() {
 
        if (consecutiveLow > maxConsecutiveLow) maxConsecutiveLow = consecutiveLow;
 
-       // Hitung rata-rata hanya dari hari kerja produktif (bukan kode ketidakhadiran atau BS)
        let avg = count ? (totalPercent / count).toFixed(1) : 0;
-       rankingData.push({key: operatorKey, avg: Number(avg), workingDays: workingDays});
+       
+       // Simpan data untuk ranking (hanya untuk Cutting sebagai representasi mesin)
+       if (typeIndex === 0) {
+         rankingData.push({
+           key: machineKey, 
+           avg: Number(avg), 
+           machine: machine,
+           cuttingAvg: Number(avg)
+         });
+       } else {
+         // Update data pelubangan ke entry yang sama
+         let entry = rankingData.find(r => r.key === machineKey);
+         if (entry) {
+           entry.pelubanganAvg = Number(avg);
+           // Rata-rata kedua jenis untuk ranking
+           entry.avg = ((entry.cuttingAvg + Number(avg)) / 2).toFixed(1);
+         }
+       }
 
        let spText = "-";
        if (maxConsecutiveLow >= 3) {
@@ -365,37 +407,33 @@ function performRender() {
        row.appendChild(spCell);
        
        tbody.appendChild(row);
-     }
+     });
    });
 
-   // Ranking per shift - berdasarkan rata-rata persentase
+   // Ranking per shift - berdasarkan rata-rata Cutting dan Pelubangan
    rankingData.sort((a, b) => b.avg - a.avg);
    rankingData.forEach((r, index) => {
-     const row = document.querySelector(`tr[data-key='${r.key}']`);
-     if (row) { 
-       row.children[0].innerText = index + 1; 
+     // Update rank di baris Cutting (baris pertama per mesin)
+     const cuttingRow = document.querySelector(`tr[data-key='${r.key}_cutting']`);
+     if (cuttingRow) { 
+       cuttingRow.children[0].innerText = index + 1; 
      }
    });
  });
 }
 
-// Fungsi untuk menyimpan data (hasil atau kode)
-window.saveData = function(op, day, value) {
+window.saveData = function(machineTypeKey, day, value) {
   showLoading();
   const upperValue = value.toString().toUpperCase().trim();
   
   let updateData;
   
-  // Cek apakah input adalah kode valid
   if (isValidCode(upperValue)) {
-    // Simpan sebagai kode
-    // Untuk BS, simpan nilai 0 agar tidak mengganggu perhitungan
     updateData = {
       hasil: 0,
       kode: upperValue
     };
   } else {
-    // Simpan sebagai angka hasil produksi
     const numValue = Number(value) || 0;
     updateData = {
       hasil: numValue,
@@ -403,8 +441,7 @@ window.saveData = function(op, day, value) {
     };
   }
   
-  // Gunakan set dengan error handling
-  set(ref(db, 'cutting/' + op + '/' + day), updateData)
+  set(ref(db, 'cutting/' + machineTypeKey + '/' + day), updateData)
     .then(() => {
       hideLoading();
     })
@@ -415,9 +452,11 @@ window.saveData = function(op, day, value) {
     });
 }
 
-window.saveName = function(op, name){
+// Simpan nama operator individual
+window.saveOperatorName = function(shift, machine, opNum, name){
   showLoading();
-  set(ref(db, 'cutting/' + op + '/nama'), name)
+  const opKey = `${shift}_${machine}_OP${opNum}`;
+  set(ref(db, 'cutting/' + opKey + '/nama'), name)
     .then(() => {
       hideLoading();
     })
@@ -427,7 +466,6 @@ window.saveName = function(op, name){
     });
 }
 
-// Optimasi: gunakan once untuk data awal, lalu onValue untuk update
 let initialLoad = true;
 onValue(ref(db, 'cutting'), (snap) => {
   if (initialLoad) {
@@ -441,7 +479,6 @@ onValue(ref(db, 'cutting'), (snap) => {
   alert("Error memuat data: " + error.message);
 });
 
-// Tampilkan loading saat halaman dimuat
 showLoading();
 
 </script>
