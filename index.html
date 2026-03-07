@@ -31,6 +31,7 @@ th.nameCol{left:70px;z-index:7}
 .code-a{background:#f87171 !important; color:#7f1d1d !important; font-weight:bold} /* Alpa - Merah */
 .code-m{background:#c4b5fd !important; color:#5b21b6 !important; font-weight:bold} /* Minggu - Ungu */
 .code-l{background:#fdba74 !important; color:#9a3412 !important; font-weight:bold} /* Libur - Oranye */
+.code-bs{background:#f0abfc !important; color:#86198f !important; font-weight:bold} /* Barang Sedikit - Pink */
 
 input{width:75px;padding:5px;font-size:14px}
 .nameInput{width:180px}
@@ -49,11 +50,38 @@ button:hover{background:#1d4ed8}
 /* Input untuk kode */
 .code-input{width:60px;text-align:center;text-transform:uppercase;font-weight:bold}
 .has-code{background:#e0e7ff !important}
+
+/* Loading indicator */
+.loading-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 </style>
 </head>
 <body>
 
 <h1>DASHBOARD PRODUKSI CUTTING</h1>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+</div>
 
 <div class="login">
 <input type="password" id="pass" placeholder="Password Admin">
@@ -68,6 +96,7 @@ button:hover{background:#1d4ed8}
   <div class="legend-item"><div class="legend-color code-a"></div>A = Alpa</div>
   <div class="legend-item"><div class="legend-color code-m"></div>M = Minggu</div>
   <div class="legend-item"><div class="legend-color code-l"></div>L = Libur</div>
+  <div class="legend-item"><div class="legend-color code-bs"></div>BS = Barang Sedikit</div>
 </div>
 
 <div class="card">
@@ -110,13 +139,19 @@ const TARGET = 700;
 const ADMIN_PASS = "bangkumisganteng123";
 let isAdmin = false;
 let currentData = {};
+let isRendering = false;
+let pendingUpdate = null;
+
+// Kode yang valid - BS tidak mempengaruhi persentase dan SP
+const VALID_CODES = ['P', 'BE', 'U', 'I', 'A', 'M', 'L', 'BS'];
+// Kode yang dianggap hari kerja untuk perhitungan ranking
+const WORKING_CODES = ['P'];
+// Kode yang tidak mempengaruhi SP dan persentase
+const IGNORED_CODES = ['BS', 'BE', 'U', 'I', 'A', 'M', 'L'];
 
 const shifts = ["SHIFT A","SHIFT B","SHIFT C"];
 const machines = ["MESIN 1","MESIN 2","MESIN 3","MESIN 4","MESIN 5","MESIN 6"];
 const operatorPerMachine = 7;
-
-// Kode yang valid
-const VALID_CODES = ['P', 'BE', 'U', 'I', 'A', 'M', 'L'];
 
 window.login = function(){
  if(document.getElementById("pass").value===ADMIN_PASS){
@@ -126,6 +161,14 @@ window.login = function(){
  }else{
    alert("Password salah");
  }
+}
+
+function showLoading() {
+  document.getElementById('loadingOverlay').style.display = 'flex';
+}
+
+function hideLoading() {
+  document.getElementById('loadingOverlay').style.display = 'none';
 }
 
 function getCodeClass(code) {
@@ -139,22 +182,52 @@ function getCodeClass(code) {
 
 function isValidCode(value) {
   if (!value) return false;
-  const upperValue = value.toString().toUpperCase();
+  const upperValue = value.toString().toUpperCase().trim();
   return VALID_CODES.includes(upperValue);
 }
 
 function render(data={}){
- currentData = data || {};
+  // Cegah render berulang saat data berubah cepat
+  if (isRendering) {
+    pendingUpdate = data;
+    return;
+  }
+  
+  isRendering = true;
+  currentData = data || {};
+  
+  // Gunakan requestAnimationFrame untuk tidak blocking UI
+  requestAnimationFrame(() => {
+    try {
+      performRender();
+    } finally {
+      isRendering = false;
+      if (pendingUpdate) {
+        const update = pendingUpdate;
+        pendingUpdate = null;
+        render(update);
+      }
+    }
+  });
+}
+
+function performRender() {
  const tbody=document.getElementById("body");
  tbody.innerHTML="";
 
  shifts.forEach(shift=>{
-   tbody.innerHTML+=`<tr class='shiftRow'><td colspan='35'>${shift}</td></tr>`;
+   const shiftRow = document.createElement('tr');
+   shiftRow.className = 'shiftRow';
+   shiftRow.innerHTML = `<td colspan='35'>${shift}</td>`;
+   tbody.appendChild(shiftRow);
 
    let rankingData=[];
 
    machines.forEach(machine=>{
-     tbody.innerHTML+=`<tr class='shiftRow'><td colspan='35'>${machine}</td></tr>`;
+     const machineRow = document.createElement('tr');
+     machineRow.className = 'shiftRow';
+     machineRow.innerHTML = `<td colspan='35'>${machine}</td>`;
+     tbody.appendChild(machineRow);
 
      for(let op=1; op<=operatorPerMachine; op++){
        let operatorKey = shift+"_"+machine+"_OP"+op;
@@ -167,14 +240,28 @@ function render(data={}){
        let maxConsecutiveLow=0;
        let workingDays = 0;
 
-       let row=`<tr data-key='${operatorKey}'>`;
-       row+=`<td class='rankCol'>-</td>`;
+       const row = document.createElement('tr');
+       row.setAttribute('data-key', operatorKey);
+       
+       // Rank cell
+       const rankCell = document.createElement('td');
+       rankCell.className = 'rankCol';
+       rankCell.textContent = '-';
+       row.appendChild(rankCell);
 
+       // Name cell
+       const nameCell = document.createElement('td');
+       nameCell.className = 'nameCol';
        if(isAdmin){
-         row+=`<td class='nameCol'><input class='nameInput' value='${nama}' onchange="saveName('${operatorKey}',this.value)"></td>`;
-       }else{
-         row+=`<td class='nameCol'>${nama}</td>`;
+         const nameInput = document.createElement('input');
+         nameInput.className = 'nameInput';
+         nameInput.value = nama;
+         nameInput.onchange = function() { saveName(operatorKey, this.value); };
+         nameCell.appendChild(nameInput);
+       } else {
+         nameCell.textContent = nama;
        }
+       row.appendChild(nameCell);
 
        for(let d=1; d<=31; d++){
          const dayData = opData?.[d] || {};
@@ -182,21 +269,32 @@ function render(data={}){
          const code = dayData.kode || '';
          let cls="";
          let displayVal = val;
+         let isCounted = true; // Apakah hari ini dihitung untuk SP dan persentase
          
-         // Jika ada kode, tampilkan kode tersebut
+         // Jika ada kode
          if (code && isValidCode(code)) {
            displayVal = code.toUpperCase();
            cls = getCodeClass(code);
-           // Kode tidak dihitung dalam produktivitas kecuali P (Perbantuan)
-           if (code.toUpperCase() === 'P') {
+           const upperCode = code.toUpperCase();
+           
+           // BS dan kode lainnya tidak dihitung untuk SP dan persentase
+           if (IGNORED_CODES.includes(upperCode)) {
+             isCounted = false;
+             // Reset consecutive low karena BS tidak dianggap produksi rendah
+             if (consecutiveLow > maxConsecutiveLow) maxConsecutiveLow = consecutiveLow;
+             consecutiveLow = 0;
+           } else if (WORKING_CODES.includes(upperCode)) {
+             // P (Perbantuan) dihitung sebagai hari kerja tapi tidak ada nilai produksi
              workingDays++;
+             isCounted = false;
+             if (consecutiveLow > maxConsecutiveLow) maxConsecutiveLow = consecutiveLow;
+             consecutiveLow = 0;
            }
          } else if (val > 0) {
+           // Ada nilai produksi numerik
            workingDays++;
            let p = val / TARGET * 100;
-           totalPercent += p; 
-           count++;
-
+           
            if (val <= 600) { 
              cls = "low"; 
              consecutiveLow++; 
@@ -209,29 +307,43 @@ function render(data={}){
              consecutiveLow = 0;
              cls = "high";
            }
+           
+           // Hanya hitung persentase jika bukan dari kode BS
+           totalPercent += p; 
+           count++;
          } else {
            // Hari kosong (0)
            if (consecutiveLow > maxConsecutiveLow) maxConsecutiveLow = consecutiveLow;
            consecutiveLow = 0;
          }
 
+         const cell = document.createElement('td');
+         cell.className = cls;
+         
          if (isAdmin) {
-           // Input untuk admin - bisa input angka atau kode
-           row += `<td class='${cls}'>
-             <input type='text' 
-                    class='code-input' 
-                    value='${displayVal}' 
-                    onchange="saveData('${operatorKey}',${d},this.value)"
-                    placeholder='0/P/BE/U/I/A/M/L'>
-           </td>`;
+           const input = document.createElement('input');
+           input.type = 'text';
+           input.className = 'code-input';
+           input.value = displayVal === 0 ? '' : displayVal;
+           input.placeholder = '0/P/BS';
+           input.onchange = function() { 
+             // Debounce save
+             clearTimeout(this.saveTimeout);
+             this.saveTimeout = setTimeout(() => {
+               saveData(operatorKey, d, this.value);
+             }, 300);
+           };
+           cell.appendChild(input);
          } else {
-           row += `<td class='${cls}'>${displayVal}</td>`;
+           cell.textContent = displayVal === 0 ? '' : displayVal;
          }
+         
+         row.appendChild(cell);
        }
 
        if (consecutiveLow > maxConsecutiveLow) maxConsecutiveLow = consecutiveLow;
 
-       // Hitung rata-rata hanya dari hari kerja produktif (bukan kode ketidakhadiran)
+       // Hitung rata-rata hanya dari hari kerja produktif (bukan kode ketidakhadiran atau BS)
        let avg = count ? (totalPercent / count).toFixed(1) : 0;
        rankingData.push({key: operatorKey, avg: Number(avg), workingDays: workingDays});
 
@@ -241,9 +353,18 @@ function render(data={}){
          spText = "SP " + spLevel;
        }
 
-       row += `<td>${avg}%</td>`;
-       row += `<td class='warning'>${spText}</td></tr>`;
-       tbody.innerHTML += row;
+       // Persentase cell
+       const percentCell = document.createElement('td');
+       percentCell.textContent = avg + '%';
+       row.appendChild(percentCell);
+       
+       // SP cell
+       const spCell = document.createElement('td');
+       spCell.className = 'warning';
+       spCell.textContent = spText;
+       row.appendChild(spCell);
+       
+       tbody.appendChild(row);
      }
    });
 
@@ -260,32 +381,68 @@ function render(data={}){
 
 // Fungsi untuk menyimpan data (hasil atau kode)
 window.saveData = function(op, day, value) {
+  showLoading();
   const upperValue = value.toString().toUpperCase().trim();
+  
+  let updateData;
   
   // Cek apakah input adalah kode valid
   if (isValidCode(upperValue)) {
     // Simpan sebagai kode
-    set(ref(db, 'cutting/' + op + '/' + day), {
+    // Untuk BS, simpan nilai 0 agar tidak mengganggu perhitungan
+    updateData = {
       hasil: 0,
       kode: upperValue
-    });
+    };
   } else {
     // Simpan sebagai angka hasil produksi
     const numValue = Number(value) || 0;
-    set(ref(db, 'cutting/' + op + '/' + day), {
+    updateData = {
       hasil: numValue,
       kode: ''
-    });
+    };
   }
+  
+  // Gunakan set dengan error handling
+  set(ref(db, 'cutting/' + op + '/' + day), updateData)
+    .then(() => {
+      hideLoading();
+    })
+    .catch((error) => {
+      hideLoading();
+      console.error("Error saving:", error);
+      alert("Gagal menyimpan data: " + error.message);
+    });
 }
 
 window.saveName = function(op, name){
- set(ref(db, 'cutting/' + op + '/nama'), name)
+  showLoading();
+  set(ref(db, 'cutting/' + op + '/nama'), name)
+    .then(() => {
+      hideLoading();
+    })
+    .catch((error) => {
+      hideLoading();
+      console.error("Error saving name:", error);
+    });
 }
 
+// Optimasi: gunakan once untuk data awal, lalu onValue untuk update
+let initialLoad = true;
 onValue(ref(db, 'cutting'), (snap) => {
- render(snap.val());
-})
+  if (initialLoad) {
+    initialLoad = false;
+    hideLoading();
+  }
+  render(snap.val());
+}, (error) => {
+  console.error("Firebase error:", error);
+  hideLoading();
+  alert("Error memuat data: " + error.message);
+});
+
+// Tampilkan loading saat halaman dimuat
+showLoading();
 
 </script>
 
